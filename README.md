@@ -11,3 +11,7 @@ Acceptable values are latest or any semantic version string like v2.16.7 Use thi
     version: '<version>' # default is latest stable
   id: install
 The cached sops binary path is prepended to the PATH environment variable as well as stored in the sops-path output variable. Refer to the action metadata file for details about all the inputs https://github.com/mdgreenwald/mozilla-sops-action/blob/master/action.yml
+
+## Test
+
+Change to readme to trigger tests
