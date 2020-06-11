@@ -9,7 +9,8 @@ outputs:
   sops-path:
     description: 'Path to the cached sops binary'
 branding:
-  color: 'orange'
+  icon: 'unlock'
+  color: 'gray-dark'
 runs:
   using: 'node12'
   main: 'lib/run.js'
