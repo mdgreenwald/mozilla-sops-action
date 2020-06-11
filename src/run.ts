@@ -8,6 +8,7 @@ import * as fs from 'fs';
 import * as semver from 'semver';
 
 import * as toolCache from '@actions/tool-cache';
+import * as io from '@actions/io';
 import * as core from '@actions/core';
 
 const sopsToolName = 'sops';
@@ -90,8 +91,7 @@ async function downloadSops(version: string): Promise<string> {
         }
 
         fs.chmodSync(sopsDownloadPath, '777');
-        const unzipedSopsPath = await toolCache.extractZip(sopsDownloadPath);
-        cachedToolpath = await toolCache.cacheDir(unzipedSopsPath, sopsToolName, version);
+        cachedToolpath = await toolCache.cacheFile(sopsDownloadPath, sopsToolName, sopsToolName, version);
     }
 
     const sopspath = findSops(cachedToolpath);
