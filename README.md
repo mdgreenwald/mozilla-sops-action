@@ -7,7 +7,8 @@ Install a specific version of sops binary on the runner.
 Acceptable values are latest or any semantic version string like v2.16.7 Use this action in workflow to define which version of sops will be used.
 
 ```yaml
-- uses: mdgreenwald/setup-sops@v1
+- name: Sops Binary Installer
+  uses: mdgreenwald/mozilla-sops-action@v1
   with:
     version: '<version>' # default is latest stable
   id: install
