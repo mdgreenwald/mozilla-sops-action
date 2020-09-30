@@ -90,7 +90,7 @@ async function downloadSops(version: string): Promise<string> {
         }
 
         fs.chmodSync(sopsDownloadPath, '777');
-        cachedToolpath = await toolCache.cacheFile(sopsDownloadPath, sopsToolName, sopsToolName, version);
+        cachedToolpath = await toolCache.cacheFile(sopsDownloadPath, sopsToolName + getExecutableExtension(), sopsToolName, version);
     }
 
     const sopspath = findSops(cachedToolpath);

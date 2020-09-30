@@ -4895,7 +4895,7 @@ function downloadSops(version) {
                 throw new Error(util.format("Failed to download Sops from location ", getSopsDownloadURL(version)));
             }
             fs.chmodSync(sopsDownloadPath, '777');
-            cachedToolpath = yield toolCache.cacheFile(sopsDownloadPath, sopsToolName, sopsToolName, version);
+            cachedToolpath = yield toolCache.cacheFile(sopsDownloadPath, sopsToolName + getExecutableExtension(), sopsToolName, version);
         }
         const sopspath = findSops(cachedToolpath);
         if (!sopspath) {
