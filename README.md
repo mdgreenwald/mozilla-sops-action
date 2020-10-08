@@ -1,3 +1,5 @@
+![build-test](https://github.com/mdgreenwald/mozilla-sops-action/workflows/build-test/badge.svg)
+
 ## Setup Sops ##
 GitHub Action for installing [Mozilla/Sops](https://github.com/mozilla/sops)
 
