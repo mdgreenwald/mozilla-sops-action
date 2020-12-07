@@ -10,7 +10,7 @@
     "@actions/exec": "^1.0.3",
     "@actions/io": "^1.0.2",
     "@actions/tool-cache": "^1.6.1",
-    "semver": "^7.3.2"
+    "semver": "^7.3.4"
   },
   "main": "lib/run.js",
   "scripts": {
