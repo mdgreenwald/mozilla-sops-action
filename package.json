@@ -19,7 +19,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
-    "@types/node": "^14.14.19",
+    "@types/node": "^14.14.20",
     "@vercel/ncc": "^0.26.2",
     "gts": "^3.1.0",
     "typescript": "^4.1.3"
