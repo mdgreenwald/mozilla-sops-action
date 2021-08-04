@@ -7,7 +7,7 @@
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.4.0",
-    "@actions/exec": "^1.0.3",
+    "@actions/exec": "^1.1.0",
     "@actions/io": "^1.1.1",
     "@actions/tool-cache": "^1.7.1",
     "semver": "^7.3.5"
@@ -19,7 +19,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
-    "@types/node": "^16.4.10",
+    "@types/node": "^16.4.12",
     "@vercel/ncc": "^0.29.0",
     "gts": "^3.1.0",
     "typescript": "^4.3.5"
