@@ -6,7 +6,7 @@ on:
 name: Create Release
 
 jobs:
-  build:
+  build-release:
     name: Create Release
     runs-on: ubuntu-latest
     steps:
@@ -25,4 +25,4 @@ jobs:
             - First Change
             - Second Change
           draft: true
-          prerelease: false
+          prerelease: true
