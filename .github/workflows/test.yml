@@ -10,7 +10,7 @@ jobs:
   build: # make sure build/ci work properly
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - run: |
         npm install
         npm run build
@@ -20,8 +20,8 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest] 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - uses: ./
-      with:
-        version: 'latest'
       id: install
+    - name: Get the sops version
+      run: sops --version
