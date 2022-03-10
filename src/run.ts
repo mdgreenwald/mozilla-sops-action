@@ -11,7 +11,7 @@ import * as toolCache from '@actions/tool-cache';
 import * as core from '@actions/core';
 
 const sopsToolName = 'sops';
-const stableSopsVersion = 'v3.5.0';
+const stableSopsVersion = 'v3.7.2';
 const sopsAllReleasesUrl = 'https://api.github.com/repos/mozilla/sops/releases';
 
 function getExecutableExtension(): string {
@@ -24,10 +24,10 @@ function getExecutableExtension(): string {
 function getSopsDownloadURL(version: string): string {
     switch (os.type()) {
         case 'Linux':
-            return util.format('https://github.com/mozilla/sops/releases/download/%s/sops-%s.linux', version, version);
+            return util.format('https://github.com/mozilla/sops/releases/download/%s/sops-%s.linux.amd64', version, version);
 
         case 'Darwin':
-            return util.format('https://github.com/mozilla/sops/releases/download/%s/sops-%s.darwin', version, version);
+            return util.format('https://github.com/mozilla/sops/releases/download/%s/sops-%s.darwin.amd64', version, version);
 
         case 'Windows_NT':
         default:
