@@ -24,10 +24,10 @@ function getExecutableExtension(): string {
 function getSopsDownloadURL(version: string): string {
     switch (os.type()) {
         case 'Linux':
-            return util.format('https://github.com/mozilla/sops/releases/download/%s/sops-%s.linux', version, version);
+            return util.format('https://github.com/mozilla/sops/releases/download/%s/sops-%s.linux.amd64', version, version);
 
         case 'Darwin':
-            return util.format('https://github.com/mozilla/sops/releases/download/%s/sops-%s.darwin', version, version);
+            return util.format('https://github.com/mozilla/sops/releases/download/%s/sops-%s.darwin.amd64', version, version);
 
         case 'Windows_NT':
         default:
