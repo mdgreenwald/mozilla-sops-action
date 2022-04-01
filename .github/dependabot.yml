@@ -1,12 +1,25 @@
 version: 2
 updates:
-- package-ecosystem: npm
+- package-ecosystem: "npm"
   directory: "/"
   schedule:
-    interval: monthly
+    interval: "monthly"
     time: "15:00"
   open-pull-requests-limit: 10
   reviewers:
   - mdgreenwald
   labels:
-  - dependencies
+  - "npm"
+  - "dependencies"
+- package-ecosystem: "docker"
+  # Files stored in repository root
+  directory: "/"
+  schedule:
+    interval: "monthly"
+    time: "15:00"
+  open-pull-requests-limit: 10
+  reviewers:
+  - mdgreenwald
+  labels:
+  - "docker"
+  - "dependencies"
