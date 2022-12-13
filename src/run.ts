@@ -35,9 +35,9 @@ function getSopsDownloadURL(version: string): string {
     }
 }
 
-async function getstableSopsVersion(): Promise<string> {
+async function getstableSopsVersion(auth: string): Promise<string> {
     try {
-        const downloadPath = await toolCache.downloadTool(sopsAllReleasesUrl);
+        const downloadPath = await toolCache.downloadTool(sopsAllReleasesUrl, auth);
         const responseArray = JSON.parse(fs.readFileSync(downloadPath, 'utf8').toString().trim());
         let latestSopsVersion = semver.clean(stableSopsVersion);
         responseArray.forEach(response => {
@@ -78,8 +78,8 @@ var walkSync = function (dir, filelist, fileToFind) {
     return filelist;
 };
 
-async function downloadSops(version: string): Promise<string> {
-    if (!version) { version = await getstableSopsVersion(); }
+async function downloadSops(version: string, auth: string): Promise<string> {
+    if (!version) { version = await getstableSopsVersion(auth); }
     let cachedToolpath = toolCache.find(sopsToolName, version);
     if (!cachedToolpath) {
         let sopsDownloadPath;
@@ -116,13 +116,15 @@ function findSops(rootFolder: string): string {
 
 async function run() {
     let version = core.getInput('version', { 'required': true });
+    let token = core.getInput('token');
+    let auth = !token ? undefined : `token ${token}`;
     if (version.toLocaleLowerCase() === 'latest') {
-        version = await getstableSopsVersion();
+        version = await getstableSopsVersion(auth);
     } else if (!version.toLocaleLowerCase().startsWith('v')) {
         version = 'v' + version;
     }
 
-    let cachedPath = await downloadSops(version);
+    let cachedPath = await downloadSops(version, auth);
 
     try {
 

@@ -5,6 +5,9 @@ inputs:
     description: 'Version of sops'
     required: true
     default: 'latest'
+  token:
+    description: 'Since there's a default, this is typically not supplied by the user. When running this action on github.com, the default value is sufficient. When running on GHES, you can pass a personal access token for github.com if you are experiencing rate limiting.'
+    default: ${{ github.token }}
 outputs:
   sops-path:
     description: 'Path to the cached sops binary'
@@ -14,4 +17,3 @@ branding:
 runs:
   using: 'node16'
   main: 'dist/index.js'
-  
