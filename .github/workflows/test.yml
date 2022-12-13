@@ -24,6 +24,6 @@ jobs:
     - uses: ./
       id: install
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ github.token }}
     - name: Get the sops version
       run: sops --version
