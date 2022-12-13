@@ -9,13 +9,11 @@ import * as semver from 'semver';
 
 import * as toolCache from '@actions/tool-cache';
 import * as core from '@actions/core';
+import { createActionAuth } from '@octokit/auth-action';
 
 const sopsToolName = 'sops';
 const stableSopsVersion = 'v3.7.2';
 const sopsAllReleasesUrl = 'https://api.github.com/repos/mozilla/sops/releases';
-
-const { createActionAuth } = require("@octokit/auth-action");
-const authentication = createActionAuth();
 
 function getExecutableExtension(): string {
     if (os.type().match(/^Win/)) {
@@ -40,7 +38,9 @@ function getSopsDownloadURL(version: string): string {
 
 async function getstableSopsVersion(auth: string): Promise<string> {
     try {
-        const downloadPath = await toolCache.downloadTool(sopsAllReleasesUrl, auth);
+        const auth = createActionAuth();
+        const authentication = await auth();
+        const downloadPath = await toolCache.downloadTool(sopsAllReleasesUrl, authentication.token);
         const responseArray = JSON.parse(fs.readFileSync(downloadPath, 'utf8').toString().trim());
         let latestSopsVersion = semver.clean(stableSopsVersion);
         responseArray.forEach(response => {
