@@ -14,6 +14,9 @@ const sopsToolName = 'sops';
 const stableSopsVersion = 'v3.7.2';
 const sopsAllReleasesUrl = 'https://api.github.com/repos/mozilla/sops/releases';
 
+const { createActionAuth } = require("@octokit/auth-action");
+const authentication = createActionAuth();
+
 function getExecutableExtension(): string {
     if (os.type().match(/^Win/)) {
         return '.exe';
@@ -116,8 +119,7 @@ function findSops(rootFolder: string): string {
 
 async function run() {
     let version = core.getInput('version', { 'required': true });
-    let token = core.getInput('token');
-    let auth = !token ? undefined : `token ${token}`;
+    const auth = await authentication();
     if (version.toLocaleLowerCase() === 'latest') {
         version = await getstableSopsVersion(auth);
     } else if (!version.toLocaleLowerCase().startsWith('v')) {
