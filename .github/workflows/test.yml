@@ -10,8 +10,10 @@ jobs:
   build: # make sure build/ci work properly
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - run: |
+    - name: Check out repository
+      uses: actions/checkout@v3
+    - name: npm build
+      run: |
         npm install
         npm run build
   test: # make sure the action works on a clean machine without building
@@ -20,10 +22,11 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest] 
     steps:
-    - uses: actions/checkout@v3
-    - uses: ./
-      id: install
+    - name: Check out repository
+      uses: actions/checkout@v3
+    - name: Setup Sops
+      uses: ./
       with:
-        token: ${{ github.token }}
+        token: ${{ secrets.GITHUB_TOKEN }}
     - name: Get the sops version
       run: sops --version
