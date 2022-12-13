@@ -40,7 +40,7 @@ async function getstableSopsVersion(auth: string): Promise<string> {
     try {
         const auth = createActionAuth();
         const authentication = await auth();
-        const downloadPath = await toolCache.downloadTool(sopsAllReleasesUrl, authentication.token);
+        const downloadPath = await toolCache.downloadTool(sopsAllReleasesUrl, authentication);
         const responseArray = JSON.parse(fs.readFileSync(downloadPath, 'utf8').toString().trim());
         let latestSopsVersion = semver.clean(stableSopsVersion);
         responseArray.forEach(response => {
