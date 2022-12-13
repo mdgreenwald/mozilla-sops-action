@@ -7,7 +7,7 @@ inputs:
     default: 'latest'
   token:
     description: GitHub token. Required only if 'version' == 'latest'
-    default: ${{ secrets.GITHUB_TOKEN }}
+    required: false
 outputs:
   sops-path:
     description: 'Path to the cached sops binary'
