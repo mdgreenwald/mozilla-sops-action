@@ -10,7 +10,7 @@ Acceptable values are latest or any semantic version string like v2.16.7 Use thi
 
 ```yaml
 - name: Sops Binary Installer
-  uses: mdgreenwald/mozilla-sops-action@v1.2.0
+  uses: mdgreenwald/mozilla-sops-action@v1.4.0
   with:
     version: '<version>' # default is latest stable
   id: install
