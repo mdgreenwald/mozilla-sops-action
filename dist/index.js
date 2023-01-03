@@ -49,7 +49,7 @@ const semver = __importStar(__nccwpck_require__(1383));
 const toolCache = __importStar(__nccwpck_require__(7784));
 const core = __importStar(__nccwpck_require__(2186));
 const sopsToolName = 'sops';
-const stableSopsVersion = 'v3.7.2';
+const stableSopsVersion = 'v3.7.3';
 const sopsAllReleasesUrl = 'https://api.github.com/repos/mozilla/sops/releases';
 function getExecutableExtension() {
     if (os.type().match(/^Win/)) {
