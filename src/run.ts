@@ -11,7 +11,7 @@ import * as toolCache from '@actions/tool-cache';
 import * as core from '@actions/core';
 
 const sopsToolName = 'sops';
-const stableSopsVersion = 'v3.7.2';
+const stableSopsVersion = 'v3.7.3';
 const sopsAllReleasesUrl = 'https://api.github.com/repos/mozilla/sops/releases';
 
 function getExecutableExtension(): string {
