@@ -1,5 +1,5 @@
 name: 'Sops Binary Installer'
-description: 'Install a specific version of the sops binary. Acceptable values are latest or any semantic version string like 1.15.0'
+description: 'Install a specific version of the sops binary. Acceptable values are latest or any semantic version string like 3.7.3'
 inputs: 
   version:
     description: 'Version of sops'
