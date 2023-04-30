@@ -14,7 +14,7 @@
     "@octokit/graphql": "^5.0.5",
     "semver": "^7.5.0"
   },
-  "main": "lib/run.js",
+  "main": "lib/index.js",
   "scripts": {
     "build": "ncc build src/run.ts -o lib",
     "test": "jest",
