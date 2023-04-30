@@ -1,5 +1,4 @@
 // Copyright (c) Microsoft Corporation.
-// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
 import * as os from 'os'
@@ -13,7 +12,7 @@ import {graphql} from '@octokit/graphql'
 import {createActionAuth} from '@octokit/auth-action'
 
 const sopsToolName = 'sops'
-const stableSopsVersion = 'v3.11.1'
+const stableSopsVersion = 'v3.7.3'
 
 export async function run() {
    let version = core.getInput('version', {required: true})
