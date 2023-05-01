@@ -46,47 +46,60 @@ export function getValidVersion(version: string): string {
    return 'v' + version
 }
 
+type GraphQLResponse = {
+   data: {
+       repository: {
+           releases: {
+               nodes: Array<{
+                   tagName: string;
+                   isLatest: boolean;
+                   isDraft: boolean;
+                   isPreRelease: boolean;
+               }>;
+           };
+       };
+   };
+};
+
 // Gets the latest sops version or returns a default stable if getting latest fails
 export async function getLatestSopsVersion(): Promise<string> {
-   try {
-      const auth = createActionAuth()
-      const graphqlAuthenticated = graphql.defaults({
-         request: {hook: auth.hook}
-      })
-      const {repository} = await graphqlAuthenticated(
-         `
+    try {
+        const auth = createActionAuth();
+        const graphqlAuthenticated = graphql.defaults({
+            request: { hook: auth.hook },
+        });
+        const query = `
             {
-               repository(name: "sops", owner: "mozilla") {
-                  releases(first: 100, orderBy: {field: CREATED_AT, direction: DESC}) {
-                     nodes {
-                        tagName
-                        isLatest
-                        isDraft
-                        isPrerelease
-                     }
-                  }
-               }
+                repository(name: "sops", owner: "mozilla") {
+                    releases(first: 2, orderBy: {field: CREATED_AT, direction: DESC}) {
+                        nodes {
+                            tagName
+                            isLatest
+                            isDraft
+                            isPrerelease
+                        }
+                    }
+                }
             }
-         `
-      )
-      const latestValidRelease: string = repository.releases.nodes.find(
-         ({tagName, isLatest, isDraft, isPreRelease}) =>
-            isValidVersion(tagName) && isLatest && !isDraft && !isPreRelease
-      )?.tagName
+        `;
+        const response = (await graphqlAuthenticated(query)) as GraphQLResponse;
+        const { repository } = response.data;
 
-      if (latestValidRelease) return latestValidRelease
-   } catch (err) {
-      core.warning(
-         `Error while fetching latest Sops release: ${err.toString()}. Using default version ${stableSopsVersion}`
-      )
-      return stableSopsVersion
-   }
+        const latestValidRelease: string =
+            repository.releases.nodes.find(({ tagName, isLatest, isDraft, isPreRelease }) => isValidVersion(tagName) && isLatest && !isDraft && !isPreRelease)?.tagName;
 
-   core.warning(
-      `Could not find valid release. Using default version ${stableSopsVersion}`
-   )
-   return stableSopsVersion
+        if (latestValidRelease) return latestValidRelease;
+    } catch (err) {
+        core.warning(
+            `Error while fetching latest Sops release: ${err.toString()}. Using default version ${stableSopsVersion}`,
+        );
+        return stableSopsVersion;
+    }
+
+    core.warning(`Could not find valid release. Using default version ${stableSopsVersion}`);
+    return stableSopsVersion;
 }
+
 
 // isValidVersion checks if verison is a stable release
 function isValidVersion(version: string): boolean {
