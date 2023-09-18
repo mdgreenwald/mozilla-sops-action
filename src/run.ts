@@ -12,7 +12,7 @@ import * as core from '@actions/core';
 
 const sopsToolName = 'sops';
 const stableSopsVersion = 'v3.7.3';
-const sopsAllReleasesUrl = 'https://api.github.com/repos/mozilla/sops/releases';
+const sopsAllReleasesUrl = 'https://api.github.com/repos/getsops/sops/releases';
 
 function getExecutableExtension(): string {
     if (os.type().match(/^Win/)) {
@@ -24,14 +24,14 @@ function getExecutableExtension(): string {
 function getSopsDownloadURL(version: string): string {
     switch (os.type()) {
         case 'Linux':
-            return util.format('https://github.com/mozilla/sops/releases/download/%s/sops-%s.linux.amd64', version, version);
+            return util.format('https://github.com/getsops/sops/releases/download/%s/sops-%s.linux.amd64', version, version);
 
         case 'Darwin':
-            return util.format('https://github.com/mozilla/sops/releases/download/%s/sops-%s.darwin.amd64', version, version);
+            return util.format('https://github.com/getsops/sops/releases/download/%s/sops-%s.darwin.amd64', version, version);
 
         case 'Windows_NT':
         default:
-            return util.format('https://github.com/mozilla/sops/releases/download/%s/sops-%s.exe', version, version);
+            return util.format('https://github.com/getsops/sops/releases/download/%s/sops-%s.exe', version, version);
     }
 }
 
