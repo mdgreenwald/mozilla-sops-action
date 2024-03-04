@@ -1,5 +1,5 @@
 name: 'Sops Binary Installer'
-description: 'Install a specific version of the sops binary. Acceptable values are latest or any semantic version string like 1.15.0'
+description: 'Install a specific version of the sops binary. Acceptable values are latest or any semantic version string like v3.8.1'
 inputs: 
   version:
     description: 'Version of sops'
@@ -12,6 +12,6 @@ branding:
   icon: 'unlock'
   color: 'gray-dark'
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
   
