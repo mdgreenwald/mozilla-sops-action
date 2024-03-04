@@ -1,6 +1,6 @@
 {
   "name": "setupsops",
-  "version": "1.4.1",
+  "version": "1.6.0",
   "private": true,
   "description": "Setup sops",
   "author": "Matthew Greenwald",
