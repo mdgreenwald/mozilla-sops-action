@@ -21,18 +21,32 @@ function getExecutableExtension(): string {
     return '';
 }
 
-function getSopsDownloadURL(version: string): string {
-    switch (os.type()) {
+function getSopsAssetName(version: string): string {
+    const runnerArch = process.env['RUNNER_ARCH']! as string;
+    const runnerOs = process.env['RUNNER_OS']! as string;
+    let archExtension = runnerArch.startsWith('X') ? '.amd64' : '.arm64';
+    let osExtension = '';
+    switch (runnerOs) {
         case 'Linux':
-            return util.format('https://github.com/getsops/sops/releases/download/%s/sops-%s.linux.amd64', version, version);
-
+            osExtension = '.linux';
+            break;
         case 'Darwin':
-            return util.format('https://github.com/getsops/sops/releases/download/%s/sops-%s.darwin.amd64', version, version);
-
-        case 'Windows_NT':
+            osExtension = '.darwin';
+            break;
+        case 'Windows':
+            osExtension = '.exe';
+            archExtension = '';
+            break;
         default:
-            return util.format('https://github.com/getsops/sops/releases/download/%s/sops-%s.exe', version, version);
+            core.error(`Unsupported OS found. OS: ${runnerOs} Arch: ${runnerArch}`);
+            throw new Error(`Unsupported OS found: ${runnerOs}`);
     }
+    return util.format('sops-%s%s%s', version, osExtension, archExtension);
+}
+
+function getSopsDownloadURL(version: string): string {
+    const fileName = getSopsAssetName(version);
+    return util.format('https://github.com/getsops/sops/releases/download/%s/%s', version, fileName);
 }
 
 async function getstableSopsVersion(): Promise<string> {
