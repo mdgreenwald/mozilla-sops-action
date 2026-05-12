@@ -96,3 +96,10 @@ Thumbs.db
 
 # Ignore built ts files
 __tests__/runner/*
+
+# Local reference material (setup-helm copy used as the rewrite basis)
+/tmp
+
+# Claude Code local settings
+/.claude
+

@@ -1,17 +1,20 @@
-name: 'Sops Binary Installer'
-description: 'Install a specific version of the sops binary. Acceptable values are latest or any semantic version string like v3.8.1'
-inputs: 
-  version:
-    description: 'Version of sops'
-    required: true
-    default: 'latest'
+name: 'Mozilla SOPS Installer'
+description: 'Install a specific version of the sops binary. Acceptable values are latest or any semantic version string like v3.13.0'
+inputs:
+   version:
+      description: 'Version of sops'
+      required: true
+      default: 'latest'
+   downloadBaseURL:
+      description: 'Set the download base URL (must end with a trailing slash and follow the <tag>/<asset> layout used by getsops/sops releases)'
+      required: false
+      default: 'https://github.com/getsops/sops/releases/download/'
 outputs:
-  sops-path:
-    description: 'Path to the cached sops binary'
+   sops-path:
+      description: 'Path to the cached sops binary'
 branding:
-  icon: 'unlock'
-  color: 'gray-dark'
+   icon: 'unlock'
+   color: 'gray-dark'
 runs:
-  using: 'node20'
-  main: 'dist/index.js'
-  
+   using: 'node24'
+   main: 'lib/index.js'

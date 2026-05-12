@@ -1,141 +1,141 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
+import * as os from 'node:os'
+import * as path from 'node:path'
+import * as fs from 'node:fs'
 
-import * as os from 'os';
-import * as path from 'path';
-import * as util from 'util';
-import * as fs from 'fs';
-import * as semver from 'semver';
+import * as toolCache from '@actions/tool-cache'
+import * as core from '@actions/core'
 
-import * as toolCache from '@actions/tool-cache';
-import * as core from '@actions/core';
+const sopsToolName = 'sops'
+export const stableSopsVersion = 'v3.13.0'
+const sopsLatestReleaseURL =
+   'https://api.github.com/repos/getsops/sops/releases/latest'
 
-const sopsToolName = 'sops';
-const stableSopsVersion = 'v3.7.3';
-const sopsAllReleasesUrl = 'https://api.github.com/repos/getsops/sops/releases';
+export async function run() {
+   let version = core.getInput('version', {required: true})
 
-function getExecutableExtension(): string {
-    if (os.type().match(/^Win/)) {
-        return '.exe';
-    }
-    return '';
+   if (version !== 'latest' && version[0] !== 'v') {
+      version = getValidVersion(version)
+   }
+   if (version.toLocaleLowerCase() === 'latest') {
+      core.info('Getting latest SOPS version')
+      version = await getLatestSopsVersion()
+   }
+
+   const downloadBaseURL = core.getInput('downloadBaseURL', {required: false})
+
+   core.startGroup(`Installing ${version}`)
+   const cachedPath = await downloadSops(downloadBaseURL, version)
+   core.endGroup()
+
+   try {
+      if (!process.env['PATH']?.startsWith(path.dirname(cachedPath))) {
+         core.addPath(path.dirname(cachedPath))
+      }
+   } catch {
+      // do nothing, set as output variable
+   }
+
+   core.info(`SOPS tool version '${version}' has been cached at ${cachedPath}`)
+   core.setOutput('sops-path', cachedPath)
 }
 
-function getSopsDownloadURL(version: string): string {
-    switch (os.type()) {
-        case 'Linux':
-            return util.format('https://github.com/getsops/sops/releases/download/%s/sops-%s.linux.amd64', version, version);
-
-        case 'Darwin':
-            return util.format('https://github.com/getsops/sops/releases/download/%s/sops-%s.darwin.amd64', version, version);
-
-        case 'Windows_NT':
-        default:
-            return util.format('https://github.com/getsops/sops/releases/download/%s/sops-%s.exe', version, version);
-    }
+// Prefixes version with v
+export function getValidVersion(version: string): string {
+   return 'v' + version
 }
 
-async function getstableSopsVersion(): Promise<string> {
-    try {
-        const downloadPath = await toolCache.downloadTool(sopsAllReleasesUrl);
-        const responseArray = JSON.parse(fs.readFileSync(downloadPath, 'utf8').toString().trim());
-        let latestSopsVersion = semver.clean(stableSopsVersion);
-        responseArray.forEach(response => {
-            if (response && response.tag_name) {
-                let currentSopsVerison = semver.clean(response.tag_name.toString());
-                if (currentSopsVerison) {
-                    if (currentSopsVerison.toString().indexOf('rc') == -1 && semver.gt(currentSopsVerison, latestSopsVersion)) {
-                        //If current sops version is not a pre release and is greater than latest sops version
-                        latestSopsVersion = currentSopsVerison;
-                    }
-                }
-            }
-        });
-        latestSopsVersion = "v" + latestSopsVersion;
-        return latestSopsVersion;
-    } catch (error) {
-        core.warning(util.format("Cannot get the latest Sops info from %s. Error %s. Using default Sops version %s.", sopsAllReleasesUrl, error, stableSopsVersion));
-    }
-
-    return stableSopsVersion;
+// Gets the latest SOPS version or returns the stable fallback if the API is
+// unreachable.
+export async function getLatestSopsVersion(): Promise<string> {
+   try {
+      const response = await fetch(sopsLatestReleaseURL, {
+         headers: {Accept: 'application/vnd.github+json'}
+      })
+      if (!response.ok) {
+         throw new Error(`HTTP ${response.status}`)
+      }
+      const data = (await response.json()) as {tag_name?: string}
+      if (!data.tag_name) {
+         throw new Error('Response missing tag_name')
+      }
+      return data.tag_name
+   } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      core.warning(
+         `Error while fetching latest SOPS release: ${msg}. Using default version ${stableSopsVersion}`
+      )
+      return stableSopsVersion
+   }
 }
 
-
-var walkSync = function (dir, filelist, fileToFind) {
-    var files = fs.readdirSync(dir);
-    filelist = filelist || [];
-    files.forEach(function (file) {
-        if (fs.statSync(path.join(dir, file)).isDirectory()) {
-            filelist = walkSync(path.join(dir, file), filelist, fileToFind);
-        }
-        else {
-            core.debug(file);
-            if (file == fileToFind) {
-                filelist.push(path.join(dir, file));
-            }
-        }
-    });
-    return filelist;
-};
-
-async function downloadSops(version: string): Promise<string> {
-    if (!version) { version = await getstableSopsVersion(); }
-    let cachedToolpath = toolCache.find(sopsToolName, version);
-    if (!cachedToolpath) {
-        let sopsDownloadPath;
-        try {
-            sopsDownloadPath = await toolCache.downloadTool(getSopsDownloadURL(version));
-        } catch (exception) {
-            throw new Error(util.format("Failed to download Sops from location ", getSopsDownloadURL(version)));
-        }
-
-        fs.chmodSync(sopsDownloadPath, '777');
-        cachedToolpath = await toolCache.cacheFile(sopsDownloadPath, sopsToolName + getExecutableExtension(), sopsToolName, version);
-    }
-
-    const sopspath = findSops(cachedToolpath);
-    if (!sopspath) {
-        throw new Error(util.format("Sops executable not found in path ", cachedToolpath));
-    }
-
-    fs.chmodSync(sopspath, '777');
-    return sopspath;
+export function getArch(): string {
+   return os.arch() === 'x64' ? 'amd64' : os.arch()
 }
 
-function findSops(rootFolder: string): string {
-    fs.chmodSync(rootFolder, '777');
-    var filelist: string[] = [];
-    walkSync(rootFolder, filelist, sopsToolName + getExecutableExtension());
-    if (!filelist) {
-        throw new Error(util.format("Sops executable not found in path ", rootFolder));
-    }
-    else {
-        return filelist[0];
-    }
+export function getPlatform(): string {
+   return os.platform() === 'win32' ? 'windows' : os.platform()
 }
 
-async function run() {
-    let version = core.getInput('version', { 'required': true });
-    if (version.toLocaleLowerCase() === 'latest') {
-        version = await getstableSopsVersion();
-    } else if (!version.toLocaleLowerCase().startsWith('v')) {
-        version = 'v' + version;
-    }
-
-    let cachedPath = await downloadSops(version);
-
-    try {
-
-        if (!process.env['PATH'].startsWith(path.dirname(cachedPath))) {
-            core.addPath(path.dirname(cachedPath));
-        }
-    }
-    catch {
-        //do nothing, set as output variable
-    }
-
-    console.log(`Sops tool version: '${version}' has been cached at ${cachedPath}`);
-    core.setOutput('sops-path', cachedPath);
+export function getExecutableExtension(): string {
+   return os.platform() === 'win32' ? '.exe' : ''
 }
 
-run().catch(core.setFailed);
+// Builds the SOPS asset URL. Asset naming on getsops/sops releases:
+//   Linux:   sops-<version>.linux.<amd64|arm64>
+//   Darwin:  sops-<version>.darwin.<amd64|arm64>
+//   Windows: sops-<version>.<amd64|arm64>.exe
+export function getSopsDownloadURL(baseURL: string, version: string): string {
+   const platform = getPlatform()
+   const arch = getArch()
+   const asset =
+      platform === 'windows'
+         ? `sops-${version}.${arch}.exe`
+         : `sops-${version}.${platform}.${arch}`
+   const normalizedBase = baseURL.endsWith('/') ? baseURL : baseURL + '/'
+   const url = new URL(`${version}/${asset}`, normalizedBase)
+   return url.toString()
+}
+
+export async function downloadSops(
+   baseURL: string,
+   version: string
+): Promise<string> {
+   let cachedToolpath = toolCache.find(sopsToolName, version)
+   if (cachedToolpath) {
+      core.info(`Restoring '${version}' from cache`)
+   } else {
+      core.info(`Downloading '${version}' from '${baseURL}'`)
+      let sopsDownloadPath: string
+      try {
+         sopsDownloadPath = await toolCache.downloadTool(
+            getSopsDownloadURL(baseURL, version)
+         )
+      } catch (exception) {
+         throw new Error(
+            `Failed to download SOPS from location ${getSopsDownloadURL(
+               baseURL,
+               version
+            )}`
+         )
+      }
+
+      fs.chmodSync(sopsDownloadPath, '777')
+      cachedToolpath = await toolCache.cacheFile(
+         sopsDownloadPath,
+         sopsToolName + getExecutableExtension(),
+         sopsToolName,
+         version
+      )
+   }
+
+   const sopspath = path.join(
+      cachedToolpath,
+      sopsToolName + getExecutableExtension()
+   )
+   if (!fs.existsSync(sopspath)) {
+      throw new Error(`SOPS executable not found in path ${cachedToolpath}`)
+   }
+
+   fs.chmodSync(sopspath, '777')
+   return sopspath
+}

@@ -1,26 +1,18 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "monthly"
-      time: "23:00"
-    open-pull-requests-limit: 10
-    reviewers:
-    - mdgreenwald
-    labels:
-    - "npm"
-    - "dependencies"
-
-  - package-ecosystem: "docker"
-    # Files stored in repository root
-    directory: "/"
-    schedule:
-      interval: "monthly"
-      time: "23:00"
-    open-pull-requests-limit: 10
-    reviewers:
-    - mdgreenwald
-    labels:
-    - "docker"
-    - "dependencies"
+   - package-ecosystem: npm
+     directory: /
+     schedule:
+        interval: weekly
+     groups:
+        npm:
+           patterns:
+              - '*'
+   - package-ecosystem: github-actions
+     directory: .github/workflows
+     schedule:
+        interval: weekly
+     groups:
+        actions:
+           patterns:
+              - '*'

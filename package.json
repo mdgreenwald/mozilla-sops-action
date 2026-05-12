@@ -1,27 +1,36 @@
 {
-  "name": "setupsops",
-  "version": "1.6.0",
-  "private": true,
-  "description": "Setup sops",
-  "author": "Matthew Greenwald",
-  "license": "MIT",
-  "dependencies": {
-    "@actions/core": "^1.10.0",
-    "@actions/exec": "^1.1.1",
-    "@actions/io": "^1.1.3",
-    "@actions/tool-cache": "^2.0.1",
-    "semver": "^7.5.4"
-  },
-  "main": "lib/run.js",
-  "scripts": {
-    "build": "npx tsc",
-    "publish": "npm run build && ncc build lib/run.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "devDependencies": {
-    "@types/node": "^20.12.8",
-    "@vercel/ncc": "^0.38.1",
-    "gts": "^5.3.0",
-    "typescript": "^5.4.5"
-  }
+   "name": "mozilla-sops-action",
+   "version": "2.0.0",
+   "private": true,
+   "type": "module",
+   "description": "GitHub Action to install a specific version of the SOPS binary",
+   "author": "Matthew Greenwald",
+   "license": "MIT",
+   "repository": {
+      "type": "git",
+      "url": "git+https://github.com/mdgreenwald/mozilla-sops-action.git"
+   },
+   "dependencies": {
+      "@actions/core": "^3.0.1",
+      "@actions/tool-cache": "^4.0.0"
+   },
+   "main": "lib/index.js",
+   "scripts": {
+      "build": "ncc build src/index.ts -o lib",
+      "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+      "test-coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+      "format": "prettier --write .",
+      "format-check": "prettier --check .",
+      "prepare": "husky"
+   },
+   "devDependencies": {
+      "@types/jest": "^30.0.0",
+      "@types/node": "^25.0.9",
+      "@vercel/ncc": "^0.38.4",
+      "husky": "^9.1.7",
+      "jest": "^30.2.0",
+      "prettier": "^3.8.0",
+      "ts-jest": "^29.4.6",
+      "typescript": "^6.0.3"
+   }
 }
