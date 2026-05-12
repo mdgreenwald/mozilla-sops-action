@@ -1,19 +1,58 @@
-![build-test](https://github.com/mdgreenwald/mozilla-sops-action/workflows/build-test/badge.svg)
+![unit-tests](https://github.com/mdgreenwald/mozilla-sops-action/actions/workflows/unit-tests.yml/badge.svg)
 
-## Setup Sops ##
-GitHub Action for installing [Mozilla/Sops](https://github.com/mozilla/sops)
+# Mozilla SOPS Installer
 
-#### Repurposed from [Azure/setup-helm](https://github.com/Azure/setup-helm) ####
+GitHub Action that installs a specific version of the [SOPS](https://github.com/getsops/sops) binary on the runner.
 
-Install a specific version of sops binary on the runner.
-Acceptable values are latest or any semantic version string like v3.8.1 Use this action in workflow to define which version of sops will be used.
+Repurposed from [Azure/setup-helm](https://github.com/Azure/setup-helm).
+
+## Usage
 
 ```yaml
-- name: Sops Binary Installer
-  uses: mdgreenwald/mozilla-sops-action@v1.6.0
+- name: Install SOPS
+  uses: mdgreenwald/mozilla-sops-action@v2.0.0
   with:
-    version: '<version>' # default is latest stable
+     version: 'v3.13.0' # default is latest stable
   id: install
 ```
 
-The cached sops binary path is prepended to the PATH environment variable as well as stored in the sops-path output variable. Refer to the action metadata file for details about all the inputs [here](https://github.com/mdgreenwald/mozilla-sops-action/blob/main/action.yml).
+Acceptable values for `version`:
+
+- `latest` (default) — queries the GitHub releases API for the current latest release
+- a full semver tag like `v3.13.0`
+- a bare semver like `3.13.0` — automatically normalized to `v3.13.0`
+
+The cached `sops` binary is prepended to `PATH` and its absolute path is exported as the `sops-path` output.
+
+### Supported platforms
+
+Native binaries are installed for all of these runners:
+
+| OS      | amd64 | arm64 |
+| ------- | :---: | :---: |
+| Linux   |  yes  |  yes  |
+| macOS   |  yes  |  yes  |
+| Windows |  yes  |  yes  |
+
+### Pinning for security
+
+This action publishes immutable tags only (`v2.0.0`, `v2.0.1`, …). There is no floating `v2` tag. Pin to a full semver tag — or, for the strongest guarantee, pin to the commit SHA:
+
+```yaml
+- uses: mdgreenwald/mozilla-sops-action@<commit-sha> # v2.0.0
+```
+
+## Inputs
+
+| Input             | Required | Default                                              | Description                                                                                                                         |
+| ----------------- | -------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `version`         | yes      | `latest`                                             | SOPS version to install. Accepts `latest`, `vX.Y.Z`, or `X.Y.Z`.                                                                    |
+| `downloadBaseURL` | no       | `https://github.com/getsops/sops/releases/download/` | Base URL for the SOPS binary. Must end with a trailing slash and follow the `<tag>/<asset>` layout used by `getsops/sops` releases. |
+
+## Outputs
+
+| Output      | Description                                |
+| ----------- | ------------------------------------------ |
+| `sops-path` | Absolute path to the cached `sops` binary. |
+
+See [`action.yml`](./action.yml) for the canonical metadata.

@@ -1,44 +1,39 @@
-# Publishing the mozilla-sops-action
+# Publishing `mozilla-sops-action`
 
-Consider `npm outdated` to check for newer dependencies.
-
-## Build the Container
+## 1. Build and verify locally
 
 ```bash
-cd $HOME/mozilla-sops-action
+npm ci
+npm test
+npm run build      # produces lib/index.js (committed)
+npm run format-check
 ```
+
+`lib/index.js` is the file GitHub Actions executes at runtime, so it **must** be committed.
+
+## 2. Update the changelog
+
+Add a new entry to `CHANGELOG.md` describing what changed.
+
+## 3. Commit, tag, and push
+
+This action uses **immutable tags only**: each release gets its own `vX.Y.Z` tag and no floating `vX` tag is ever moved. Consumers pin to a full semver tag (or a commit SHA).
 
 ```bash
-docker build -t mozilla-sops-action:build .
+git add lib/index.js CHANGELOG.md <other changes>
+git commit -m "Release v<x.y.z>"
+git push origin main
+
+git tag v<x.y.z>
+git push origin v<x.y.z>
 ```
 
-## Run the Built Container
+The `release.yml` workflow runs on the tag push and creates the GitHub release automatically (`gh release create --generate-notes`).
+
+## 4. Check for stale dependencies
 
 ```bash
-docker run -it --rm \
---volume $HOME/mozilla-sops-action:/usr/src/app \
-mozilla-sops-action:build \
-/bin/sh
-```
-## Create artifacts
-
-```bash
-npm install
+npm outdated
 ```
 
-```bash
-npm run publish
-```
-
-## Publish the changes
-
-Add and commit changes.
-Push to remote.
-Merge PR with changes into Master.
-
-```
-git tag v99
-git push --tags
-```
-
-Create release on Release page.
+Open Dependabot will handle most upgrades on a weekly cadence.

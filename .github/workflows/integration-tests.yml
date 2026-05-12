@@ -1,0 +1,85 @@
+name: 'Trigger Integration tests'
+on:
+   pull_request:
+      branches:
+         - main
+         - 'releases/*'
+
+jobs:
+   trigger-integration-tests:
+      name: Trigger Integration tests
+      strategy:
+         matrix:
+            os:
+               - ubuntu-latest
+               - ubuntu-24.04-arm
+               - macos-latest
+               - windows-latest
+               - windows-11-arm
+         fail-fast: false
+      runs-on: ${{ matrix.os }}
+      env:
+         SOPS_PINNED: 'v3.13.0'
+         SOPS_NO_V: '3.13.0'
+         PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+      steps:
+         - name: Check out repository
+           uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+         - name: npm install and build
+           shell: bash
+           run: |
+              echo "$PR_BASE_REF"
+              if [[ "$PR_BASE_REF" != releases/* ]]; then
+                npm install
+                npm run build
+              fi
+
+         - name: Install pinned SOPS version
+           uses: ./
+           with:
+              version: ${{ env.SOPS_PINNED }}
+
+         - name: Validate pinned SOPS version
+           shell: bash
+           run: |
+              if [[ "$(sops --version)" != *"$SOPS_NO_V"* ]]; then
+                echo "SOPS VERSION INCORRECT: output does not contain $SOPS_NO_V"
+                echo "sops --version output: $(sops --version)"
+                exit 1
+              fi
+              echo "SOPS $SOPS_PINNED installed successfully"
+
+         - name: Install SOPS without v prefix
+           uses: ./
+           with:
+              version: ${{ env.SOPS_NO_V }}
+
+         - name: Validate SOPS without v prefix
+           shell: bash
+           run: |
+              if [[ "$(sops --version)" != *"$SOPS_NO_V"* ]]; then
+                echo "SOPS VERSION INCORRECT: output does not contain $SOPS_NO_V"
+                echo "sops --version output: $(sops --version)"
+                exit 1
+              fi
+              echo "SOPS $SOPS_NO_V (no v) installed successfully"
+
+         - name: Install latest SOPS
+           uses: ./
+           with:
+              version: latest
+
+         - name: Validate latest SOPS
+           shell: bash
+           env:
+              GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+           run: |
+              SOPS_LATEST_TAG=$(gh api repos/getsops/sops/releases/latest --jq .tag_name)
+              SOPS_LATEST="${SOPS_LATEST_TAG#v}"
+              if [[ "$(sops --version)" != *"$SOPS_LATEST"* ]]; then
+                echo "SOPS VERSION INCORRECT: output does not contain $SOPS_LATEST"
+                echo "sops --version output: $(sops --version)"
+                exit 1
+              fi
+              echo "SOPS $SOPS_LATEST_TAG (latest) installed successfully"
