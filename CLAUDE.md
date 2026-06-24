@@ -63,12 +63,7 @@ Don't reintroduce extraction logic without first confirming SOPS has changed its
 
 This action publishes **immutable tags only**: `v2.0.0`, `v2.0.1`, … No floating `v2` tag is ever moved. The `release.yml` workflow triggers on `v[0-9]+.[0-9]+.[0-9]+` tag pushes and uses `gh release create --verify-tag` to enforce this. The README documents SHA pinning as the recommended consumption pattern.
 
-When tagging:
-
-1. Rebuild and commit `lib/index.js`.
-2. Update `CHANGELOG.md`.
-3. Commit, then `git tag vX.Y.Z && git push origin vX.Y.Z`.
-4. The release workflow creates the GitHub release automatically.
+See `RELEASE.md` for the full step-by-step release process (version bump, build, CHANGELOG, commit-signing caveat, tag, verify).
 
 ## Module system
 
