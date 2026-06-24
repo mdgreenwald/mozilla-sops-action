@@ -133,6 +133,38 @@ describe('run.ts', () => {
       expect(await run.getLatestSopsVersion()).toBe('v9.99.999')
    })
 
+   test('getLatestSopsVersion() - omits Authorization header when no token is given', async () => {
+      const res = {
+         ok: true,
+         status: 200,
+         json: async () => ({tag_name: 'v9.99.999'})
+      } as unknown as Response
+      const mockFetch = jest.fn<typeof fetch>().mockResolvedValue(res)
+      global.fetch = mockFetch
+      await run.getLatestSopsVersion()
+      const headers = mockFetch.mock.calls[0][1]?.headers as Record<
+         string,
+         string
+      >
+      expect(headers.Authorization).toBeUndefined()
+   })
+
+   test('getLatestSopsVersion() - sends Authorization header when a token is given', async () => {
+      const res = {
+         ok: true,
+         status: 200,
+         json: async () => ({tag_name: 'v9.99.999'})
+      } as unknown as Response
+      const mockFetch = jest.fn<typeof fetch>().mockResolvedValue(res)
+      global.fetch = mockFetch
+      await run.getLatestSopsVersion('my-token')
+      const headers = mockFetch.mock.calls[0][1]?.headers as Record<
+         string,
+         string
+      >
+      expect(headers.Authorization).toBe('Bearer my-token')
+   })
+
    test('getLatestSopsVersion() - fall back to stable on a non-OK response', async () => {
       const res = {
          ok: false,

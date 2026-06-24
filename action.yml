@@ -1,5 +1,5 @@
 name: 'Mozilla SOPS Installer'
-description: 'Install a specific version of the sops binary. Acceptable values are latest or any semantic version string like v3.13.0'
+description: 'Install a specific version of the sops binary. Acceptable values are latest or any semantic version string like v3.13.1'
 inputs:
    version:
       description: 'Version of sops'
@@ -9,6 +9,10 @@ inputs:
       description: 'Set the download base URL (must end with a trailing slash and follow the <tag>/<asset> layout used by getsops/sops releases)'
       required: false
       default: 'https://github.com/getsops/sops/releases/download/'
+   token:
+      description: 'GitHub token used to authenticate the request that resolves the "latest" SOPS version, raising the GitHub API rate limit from 60/hr (unauthenticated) to 1000/hr. Typically `${{ secrets.GITHUB_TOKEN }}`. Unused when `version` is not `latest`.'
+      required: false
+      default: ''
 outputs:
    sops-path:
       description: 'Path to the cached sops binary'
