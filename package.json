@@ -10,6 +10,16 @@
       "type": "git",
       "url": "git+https://github.com/mdgreenwald/mozilla-sops-action.git"
    },
+   "engines": {
+      "node": "^24.0.0"
+   },
+   "devEngines": {
+      "runtime": {
+         "name": "node",
+         "version": "^24.0.0",
+         "onFail": "error"
+      }
+   },
    "dependencies": {
       "@actions/core": "^3.0.1",
       "@actions/tool-cache": "^4.0.0"
