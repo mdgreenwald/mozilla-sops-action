@@ -10,7 +10,7 @@ Repurposed from [Azure/setup-helm](https://github.com/Azure/setup-helm).
 
 ```yaml
 - name: Install SOPS
-  uses: mdgreenwald/mozilla-sops-action@v2.0.0
+  uses: mdgreenwald/mozilla-sops-action@v2.0.1
   with:
      version: 'v3.13.0' # default is latest stable
   id: install
@@ -39,7 +39,7 @@ Native binaries are installed for all of these runners:
 This action publishes immutable tags only (`v2.0.0`, `v2.0.1`, …). There is no floating `v2` tag. Pin to a full semver tag — or, for the strongest guarantee, pin to the commit SHA:
 
 ```yaml
-- uses: mdgreenwald/mozilla-sops-action@<commit-sha> # v2.0.0
+- uses: mdgreenwald/mozilla-sops-action@<commit-sha> # v2.0.1
 ```
 
 ## Inputs

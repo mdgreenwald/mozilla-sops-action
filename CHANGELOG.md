@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.0.1
+
+CI/tooling hardening release. No changes to `action.yml` or runtime behavior.
+
+### Internal
+
+- `package.json` now declares `engines`/`devEngines` pinning Node to `^24.0.0`, matching the `node24` action runtime.
+- `unit-tests`, `integration-tests`, and `prettify-code` workflows now pin Node via `actions/setup-node@v6` with `node-version-file: package.json`, instead of relying on the runner's preinstalled Node.
+- `unit-tests` and `prettify-code` workflows switched to `npm ci` (from `npm install` / ad-hoc `npx`) for reproducible, lockfile-driven installs; `prettify-code` now runs `npm run format-check`.
+- `actions/checkout` bumped to `v6.0.3`; `github/codeql-action` bumped to `v4`.
+- Release workflow now extracts release notes from `CHANGELOG.md` instead of auto-generating them from commits.
+- Dependency bumps: `@types/node` to `^25.9.3`, `@vercel/ncc` to `^0.44.0`, `prettier` to `^3.8.4`, `ts-jest` to `^29.4.11`, and transitive `undici` to `6.27.0`.
+
 ## v2.0.0
 
 Complete rewrite on top of [`Azure/setup-helm@v5.0.0`](https://github.com/Azure/setup-helm).
