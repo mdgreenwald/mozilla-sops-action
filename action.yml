@@ -10,7 +10,7 @@ inputs:
       required: false
       default: 'https://github.com/getsops/sops/releases/download/'
    token:
-      description: 'GitHub token used to authenticate the request that resolves the "latest" SOPS version, raising the GitHub API rate limit from 60/hr (unauthenticated) to 1000/hr. Typically `${{ secrets.GITHUB_TOKEN }}`. Unused when `version` is not `latest`.'
+      description: 'GitHub token used to authenticate the request that resolves the "latest" SOPS version, raising the GitHub API rate limit from 60/hr (unauthenticated) to 1000/hr. Typically the workflow GITHUB_TOKEN secret. Unused when `version` is not `latest`.'
       required: false
       default: ''
 outputs:

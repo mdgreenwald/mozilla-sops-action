@@ -74,6 +74,7 @@ jobs:
            uses: ./
            with:
               version: latest
+              token: ${{ secrets.GITHUB_TOKEN }}
 
          - name: Validate latest SOPS
            shell: bash
