@@ -1,6 +1,6 @@
 {
    "name": "mozilla-sops-action",
-   "version": "2.0.1",
+   "version": "2.1.0",
    "private": true,
    "type": "module",
    "description": "GitHub Action to install a specific version of the SOPS binary",
