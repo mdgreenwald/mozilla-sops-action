@@ -18,6 +18,7 @@ jest.unstable_mockModule('node:os', () => ({
 
 jest.unstable_mockModule('node:fs', () => ({
    ...actualFs,
+   accessSync: jest.fn(),
    chmodSync: jest.fn(),
    existsSync: jest.fn(actualFs.existsSync),
    default: {...actualFs}
@@ -39,6 +40,9 @@ const mockArch = os.arch as jest.MockedFunction<typeof os.arch>
 const mockChmodSync = fs.chmodSync as jest.MockedFunction<typeof fs.chmodSync>
 const mockExistsSync = fs.existsSync as jest.MockedFunction<
    typeof fs.existsSync
+>
+const mockAccessSync = fs.accessSync as jest.MockedFunction<
+   typeof fs.accessSync
 >
 const mockFind = toolCache.find as jest.MockedFunction<typeof toolCache.find>
 const mockDownloadTool = toolCache.downloadTool as jest.MockedFunction<
@@ -196,6 +200,26 @@ describe('run.ts', () => {
       expect(run.getValidVersion('3.13.0')).toBe('v3.13.0')
    })
 
+   test('isExecutable() - return true when file is executable', () => {
+      mockAccessSync.mockImplementation(() => {})
+      expect(run.isExecutable('path/to/executable')).toBe(true)
+      expect(mockAccessSync).toHaveBeenCalledWith(
+         'path/to/executable',
+         fs.constants.X_OK
+      )
+   })
+
+   test('isExecutable() - return false when file is not executable', () => {
+      mockAccessSync.mockImplementation(() => {
+         throw new Error('Not executable')
+      })
+      expect(run.isExecutable('path/to/non-executable')).toBe(false)
+      expect(mockAccessSync).toHaveBeenCalledWith(
+         'path/to/non-executable',
+         fs.constants.X_OK
+      )
+   })
+
    test('downloadSops() - download SOPS and return path to it', async () => {
       mockFind.mockReturnValue('')
       mockDownloadTool.mockResolvedValue('pathToTool')
@@ -204,6 +228,7 @@ describe('run.ts', () => {
       mockArch.mockReturnValue('x64')
       mockChmodSync.mockImplementation(() => {})
       mockExistsSync.mockReturnValue(true)
+      mockAccessSync.mockImplementation(() => {})
 
       expect(await run.downloadSops(downloadBaseURL, 'v3.13.0')).toBe(
          path.join('pathToCachedDir', 'sops')
@@ -219,10 +244,7 @@ describe('run.ts', () => {
          'v3.13.0'
       )
       expect(mockChmodSync).toHaveBeenCalledWith('pathToTool', '777')
-      expect(mockChmodSync).toHaveBeenCalledWith(
-         path.join('pathToCachedDir', 'sops'),
-         '777'
-      )
+      expect(mockChmodSync).toHaveBeenCalledTimes(1)
    })
 
    test('downloadSops() - Windows uses .exe suffix in cached filename', async () => {
@@ -233,6 +255,7 @@ describe('run.ts', () => {
       mockArch.mockReturnValue('x64')
       mockChmodSync.mockImplementation(() => {})
       mockExistsSync.mockReturnValue(true)
+      mockAccessSync.mockImplementation(() => {})
 
       expect(await run.downloadSops(downloadBaseURL, 'v3.13.0')).toBe(
          path.join('pathToCachedDir', 'sops.exe')
@@ -272,12 +295,32 @@ describe('run.ts', () => {
       mockArch.mockReturnValue('x64')
       mockChmodSync.mockImplementation(() => {})
       mockExistsSync.mockReturnValue(true)
+      mockAccessSync.mockImplementation(() => {})
 
       expect(await run.downloadSops(downloadBaseURL, 'v3.13.0')).toBe(
          path.join('pathToCachedDir', 'sops')
       )
       expect(mockFind).toHaveBeenCalledWith('sops', 'v3.13.0')
       expect(mockDownloadTool).not.toHaveBeenCalled()
+      expect(mockChmodSync).not.toHaveBeenCalled()
+   })
+
+   test('downloadSops() - call chmod if cached file is not executable', async () => {
+      mockFind.mockReturnValue('pathToCachedDir')
+      mockDownloadTool.mockResolvedValue('pathToTool')
+      mockCacheFile.mockResolvedValue('pathToCachedDir')
+      mockPlatform.mockReturnValue('linux')
+      mockArch.mockReturnValue('x64')
+      mockChmodSync.mockImplementation(() => {})
+      mockExistsSync.mockReturnValue(true)
+      mockAccessSync.mockImplementation(() => {
+         throw new Error('Not executable')
+      })
+
+      expect(await run.downloadSops(downloadBaseURL, 'v3.13.0')).toBe(
+         path.join('pathToCachedDir', 'sops')
+      )
+      expect(mockFind).toHaveBeenCalledWith('sops', 'v3.13.0')
       expect(mockChmodSync).toHaveBeenCalledWith(
          path.join('pathToCachedDir', 'sops'),
          '777'

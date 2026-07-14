@@ -102,6 +102,15 @@ export function getSopsDownloadURL(baseURL: string, version: string): string {
    return url.toString()
 }
 
+export function isExecutable(filePath: string): boolean {
+   try {
+      fs.accessSync(filePath, fs.constants.X_OK)
+      return true
+   } catch {
+      return false
+   }
+}
+
 export async function downloadSops(
    baseURL: string,
    version: string
@@ -142,6 +151,8 @@ export async function downloadSops(
       throw new Error(`SOPS executable not found in path ${cachedToolpath}`)
    }
 
-   fs.chmodSync(sopspath, '777')
+   if (!isExecutable(sopspath)) {
+      fs.chmodSync(sopspath, '777')
+   }
    return sopspath
 }
