@@ -20,6 +20,7 @@ jest.unstable_mockModule('node:fs', () => ({
    ...actualFs,
    chmodSync: jest.fn(),
    existsSync: jest.fn(actualFs.existsSync),
+   accessSync: jest.fn(),
    default: {...actualFs}
 }))
 
@@ -39,6 +40,9 @@ const mockArch = os.arch as jest.MockedFunction<typeof os.arch>
 const mockChmodSync = fs.chmodSync as jest.MockedFunction<typeof fs.chmodSync>
 const mockExistsSync = fs.existsSync as jest.MockedFunction<
    typeof fs.existsSync
+>
+const mockAccessSync = fs.accessSync as jest.MockedFunction<
+   typeof fs.accessSync
 >
 const mockFind = toolCache.find as jest.MockedFunction<typeof toolCache.find>
 const mockDownloadTool = toolCache.downloadTool as jest.MockedFunction<
@@ -204,6 +208,9 @@ describe('run.ts', () => {
       mockArch.mockReturnValue('x64')
       mockChmodSync.mockImplementation(() => {})
       mockExistsSync.mockReturnValue(true)
+      mockAccessSync.mockImplementation(() => {
+         throw new Error('not executable')
+      })
 
       expect(await run.downloadSops(downloadBaseURL, 'v3.13.0')).toBe(
          path.join('pathToCachedDir', 'sops')
@@ -272,6 +279,9 @@ describe('run.ts', () => {
       mockArch.mockReturnValue('x64')
       mockChmodSync.mockImplementation(() => {})
       mockExistsSync.mockReturnValue(true)
+      mockAccessSync.mockImplementation(() => {
+         throw new Error('not executable')
+      })
 
       expect(await run.downloadSops(downloadBaseURL, 'v3.13.0')).toBe(
          path.join('pathToCachedDir', 'sops')
@@ -296,5 +306,37 @@ describe('run.ts', () => {
       await expect(
          run.downloadSops(downloadBaseURL, 'v3.13.0')
       ).rejects.toThrow('SOPS executable not found in path pathToCachedDir')
+   })
+
+   test('downloadSops() - skips chmod on a cache hit that is already executable', async () => {
+      mockFind.mockReturnValue('pathToCachedDir')
+      mockPlatform.mockReturnValue('linux')
+      mockArch.mockReturnValue('x64')
+      mockChmodSync.mockImplementation(() => {})
+      mockExistsSync.mockReturnValue(true)
+      mockAccessSync.mockImplementation(() => {})
+
+      expect(await run.downloadSops(downloadBaseURL, 'v3.13.0')).toBe(
+         path.join('pathToCachedDir', 'sops')
+      )
+      expect(mockChmodSync).not.toHaveBeenCalled()
+   })
+
+   test('downloadSops() - does not throw when chmod on an already-executable cache hit would fail with EPERM', async () => {
+      mockFind.mockReturnValue('pathToCachedDir')
+      mockPlatform.mockReturnValue('linux')
+      mockArch.mockReturnValue('x64')
+      mockExistsSync.mockReturnValue(true)
+      mockAccessSync.mockImplementation(() => {})
+      mockChmodSync.mockImplementation(() => {
+         throw Object.assign(new Error('EPERM: operation not permitted'), {
+            code: 'EPERM'
+         })
+      })
+
+      expect(await run.downloadSops(downloadBaseURL, 'v3.13.0')).toBe(
+         path.join('pathToCachedDir', 'sops')
+      )
+      expect(mockChmodSync).not.toHaveBeenCalled()
    })
 })
