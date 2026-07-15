@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.1.1
+
+### Fixed
+
+- `downloadSops()` no longer calls `fs.chmodSync` unconditionally on a cache hit. Tool caches on filesystems that reject chmod (e.g. an SMB/CIFS share mounted on a self-hosted runner) previously failed the run with `EPERM: operation not permitted`, even though the cached binary already carried the executable bit from its original download. The chmod is now skipped whenever the cached binary is already executable. ([#250](https://github.com/mdgreenwald/mozilla-sops-action/issues/250), [#252](https://github.com/mdgreenwald/mozilla-sops-action/pull/252))
+
+### Internal
+
+- Dependency bumps: `@types/node` to `^26.1.1`, `@vercel/ncc` to `^0.44.1`, `prettier` to `^3.9.5`. ([#246](https://github.com/mdgreenwald/mozilla-sops-action/pull/246), [#252](https://github.com/mdgreenwald/mozilla-sops-action/pull/252))
+
 ## v2.1.0
 
 ### Added
