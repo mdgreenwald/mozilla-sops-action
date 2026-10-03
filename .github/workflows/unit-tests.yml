@@ -34,3 +34,34 @@ jobs:
               npm ci
               npm run typecheck
               npm test
+
+   bundle:
+      name: Verify lib/index.js is up to date
+      runs-on: ubuntu-latest
+      steps:
+         - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+         - name: Set up Node.js
+           uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+           with:
+              node-version-file: package.json
+
+         - name: Rebuild bundle
+           run: |
+              npm ci
+              npm run build
+
+         - name: Fail if the committed bundle is stale
+           run: |
+              git diff --exit-code -- lib/ || {
+                echo "::error::lib/ is out of date. Run 'npm run build' and commit the result."
+                exit 1
+              }
+
+         - name: Fail if the bundle contains bare require() calls
+           # require is undefined in an ESM bundle; see rollup.config.js.
+           run: |
+              if grep -nE '\brequire\(' lib/index.js; then
+                echo "::error::lib/index.js contains require() calls, which fail at runtime in ESM."
+                exit 1
+              fi

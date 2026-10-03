@@ -23,7 +23,7 @@ work), it's a patch release.
 npm ci
 npm test
 npm run build         # regenerates lib/index.js — run this even if src/ didn't
-                       # change; a bumped @vercel/ncc or other devDependency can
+                       # change; a bumped rollup/plugin or other dependency can
                        # still alter the bundle output
 npm run format-check
 ```

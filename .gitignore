@@ -103,3 +103,6 @@ __tests__/runner/*
 # Claude Code local settings
 /.claude
 
+
+# TypeScript output staged for rollup
+/build
