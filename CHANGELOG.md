@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Internal
+
+- Build: replaced `@vercel/ncc` with Rollup 4.64.0 (`@rollup/plugin-node-resolve` + `@rollup/plugin-commonjs`). `tsc` now compiles `src/` to a staging `build/` directory and Rollup bundles it into `lib/index.js`, which is now plain ESM with no webpack runtime. No change to inputs, outputs, or runtime behavior.
+- CI: new `bundle` job in `unit-tests.yml` rebuilds `lib/index.js` and fails if the committed bundle is stale or contains bare `require()` calls.
+
 ## v2.1.1
 
 ### Fixed

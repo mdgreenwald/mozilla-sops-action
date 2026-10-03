@@ -3,12 +3,11 @@
       "target": "es2022",
       "module": "NodeNext",
       "moduleResolution": "NodeNext",
-      "outDir": "./lib",
-      "rootDir": "./src",
       "esModuleInterop": true,
       "isolatedModules": true,
       "noImplicitAny": false,
       "skipLibCheck": true,
+      "noEmit": true,
       "types": ["node", "jest"]
    },
    "exclude": ["node_modules", "tmp", "**/*.test.ts"]
