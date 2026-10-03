@@ -6,6 +6,8 @@
 
 - Build: replaced `@vercel/ncc` with Rollup 4.64.0 (`@rollup/plugin-node-resolve` + `@rollup/plugin-commonjs`). `tsc` now compiles `src/` to a staging `build/` directory and Rollup bundles it into `lib/index.js`, which is now plain ESM with no webpack runtime. No change to inputs, outputs, or runtime behavior.
 - CI: new `bundle` job in `unit-tests.yml` rebuilds `lib/index.js` and fails if the committed bundle is stale or contains bare `require()` calls.
+- Security: `npm audit fix` bumps the bundled runtime dependency `undici` from 6.27.0 to 6.29.0 (GHSA-8xcm-r25x-g524, GHSA-m8rv-5g2x-5cg5, GHSA-v3r7-h72x-cjcm, GHSA-3wwx-pv8p-q78v, GHSA-r53p-7pc4-xj5r, GHSA-rfgv-xxqx-mfg5), plus dev-only transitive bumps of `js-yaml`, `brace-expansion`, `browserslist` and `baseline-browser-mapping`. `npm audit` now reports 0 vulnerabilities.
+- Dependency bumps: `@types/node` to `^26.6.4`, `jest` to `^30.5.2`, `prettier` to `^3.9.9`, `ts-jest` to `^29.4.14`.
 
 ## v2.1.1
 
