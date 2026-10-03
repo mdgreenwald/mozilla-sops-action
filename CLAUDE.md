@@ -12,6 +12,7 @@ The codebase was rewritten on top of [`Azure/setup-helm@5.0.0`](https://github.c
 
 ```bash
 npm ci                  # clean install (use this, not `npm install`, for reproducible builds)
+npm run typecheck       # tsc --noEmit, using the native TS7 compiler — full program type-check
 npm test                # jest — all unit tests in src/*.test.ts
 npm test -- -t 'name'   # run a single test by name pattern
 npm run build           # ncc bundle src/index.ts -> lib/index.js (MUST be re-run after any src/ change)
@@ -64,6 +65,15 @@ Don't reintroduce extraction logic without first confirming SOPS has changed its
 This action publishes **immutable tags only**: `v2.0.0`, `v2.0.1`, … No floating `v2` tag is ever moved. The `release.yml` workflow triggers on `v[0-9]+.[0-9]+.[0-9]+` tag pushes and uses `gh release create --verify-tag` to enforce this. The README documents SHA pinning as the recommended consumption pattern.
 
 See `RELEASE.md` for the full step-by-step release process (version bump, build, CHANGELOG, commit-signing caveat, tag, verify).
+
+## TypeScript 7 split (non-obvious)
+
+TypeScript 7 is a native (Go) rewrite of `tsc` with no stable programmatic compiler API — only the CLI is supported in the 7.0 line. `ts-jest` and `@vercel/ncc` both need the JS-based compiler _API_, not just the CLI, so they can't run on real TS7 yet. This repo therefore installs two separate packages under aliases in `package.json`:
+
+- `"typescript": "npm:@typescript/typescript6@^6.0.2"` — the official TS-6-API compatibility shim, consumed by `ts-jest` (via `jest.config.cjs`) and picked up automatically by `ncc build` (it prefers a local `typescript` if present). This is what satisfies `ts-jest`'s peer dependency (`typescript >=4.3 <7`).
+- `"@typescript/native": "npm:typescript@^7.0.2"` — the real native TS7 compiler. Its `bin` is still named `tsc`, so `node_modules/.bin/tsc` runs TS7, and `npm run typecheck` uses it for a full `--noEmit` program check.
+
+Don't collapse these into a single `typescript` devDependency pointed at `^7.x` — that would silently break `ts-jest` (no stable API to hook into) and make `ncc build` fall back to its own bundled TS 5.2.2. Revisit this split once a `typescript` release ships a stable 7.x API (tracked upstream for the 7.1 line) and `ts-jest` widens its peer range.
 
 ## Module system
 
