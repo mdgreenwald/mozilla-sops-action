@@ -6,6 +6,7 @@ Thanks for considering a contribution.
 
 ```bash
 npm ci
+npm run typecheck
 npm test
 npm run build       # rebuild lib/index.js
 npm run format
@@ -14,9 +15,9 @@ npm run format
 ## Pull requests
 
 - Open issues before large changes so the design can be discussed.
-- Run `npm test` and `npm run format-check` before pushing.
+- Run `npm run typecheck`, `npm test` and `npm run format-check` before pushing.
 - Rebuild `lib/index.js` (`npm run build`) and commit it — the bundle is what GitHub Actions executes.
-- The Husky pre-commit hook runs `npm test` and `prettier --check` automatically; do not bypass it.
+- The Husky pre-commit hook runs `npm run typecheck`, `npm test` and `prettier --check` automatically; do not bypass it.
 
 ## Reporting bugs
 

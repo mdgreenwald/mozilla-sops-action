@@ -1,4 +1,4 @@
-import {jest} from '@jest/globals'
+import {describe, expect, jest, test} from '@jest/globals'
 import * as path from 'node:path'
 
 // ESM module mocking: declare mocks BEFORE the dynamic imports that consume
