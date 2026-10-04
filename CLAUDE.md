@@ -12,7 +12,7 @@ The codebase was rewritten on top of [`Azure/setup-helm@5.0.0`](https://github.c
 
 ```bash
 npm ci                  # clean install (use this, not `npm install`, for reproducible builds)
-npm run typecheck       # tsc --noEmit, using the native TS7 compiler — full program type-check
+npm run typecheck       # tsc --noEmit (native TS 7) — type-checks src/ including tests
 npm test                # jest — all unit tests in src/*.test.ts
 npm test -- -t 'name'   # run a single test by name pattern
 npm run build           # tsc src/ -> build/, then rollup build/index.js -> lib/index.js (MUST be re-run after any src/ change)
@@ -66,14 +66,17 @@ This action publishes **immutable tags only**: `v2.0.0`, `v2.0.1`, … No floati
 
 See `RELEASE.md` for the full step-by-step release process (version bump, build, CHANGELOG, commit-signing caveat, tag, verify).
 
-## TypeScript 7 split (non-obvious)
+## TypeScript 7 and tests (non-obvious)
 
-TypeScript 7 is a native (Go) rewrite of `tsc` with no stable programmatic compiler API — only the CLI is supported in the 7.0 line. `ts-jest` needs the JS-based compiler _API_, not just the CLI, so it can't run on real TS7 yet. This repo therefore installs two separate packages under aliases in `package.json`:
+`typescript` is a plain `^7` devDependency: the native (Go) compiler, which has **no JS compiler API** (`require('typescript')` only exports a version string). It is used only through the `tsc` CLI, by `npm run typecheck` and `npm run build`. Don't add tools that `require('typescript')` for its API (`ts-jest`, `@rollup/plugin-typescript`, `ts-loader`, …); they fail on TS 7.
 
-- `"typescript": "npm:@typescript/typescript6@^6.0.2"` — the official TS-6-API compatibility shim, consumed only by `ts-jest` (via `jest.config.cjs`). This is what satisfies `ts-jest`'s peer dependency (`typescript >=4.3 <7`).
-- `"@typescript/native": "npm:typescript@^7.0.2"` — the real native TS7 compiler. Its `bin` is still named `tsc`, so `node_modules/.bin/tsc` runs TS7. Both `npm run typecheck` (`--noEmit`) and `npm run build` (`tsc -p tsconfig.build.json`, emitting into `build/` for Rollup) use it.
+Jest therefore doesn't compile tests. `jest.transform.cjs` runs Node's built-in `module.stripTypeScriptTypes`, which replaces type annotations with whitespace. Consequences:
 
-Don't collapse these into a single `typescript` devDependency pointed at `^7.x` — that would silently break `ts-jest` (no stable API to hook into). Revisit this split once a `typescript` release ships a stable 7.x API (tracked upstream for the 7.1 line) and `ts-jest` widens its peer range.
+- Line and column positions are preserved, so coverage and stack traces need no source maps.
+- Only erasable TS syntax works: no `enum`, `namespace`, parameter properties or legacy decorators. `tsconfig.json` sets `erasableSyntaxOnly` and `verbatimModuleSyntax` (type-only imports must use `import type`) so `npm run typecheck` rejects anything stripping can't handle.
+- Stripping does no type checking, so `npm run typecheck` (CI and pre-commit) is what checks tests.
+- The transformer's `getCacheKey` **must** include `options.instrument`: Jest caches the instrumented output under that key, and without it a warm cache makes `--coverage` report 0%.
+- `stripTypeScriptTypes` is still experimental in Node 24; the test scripts pass `--disable-warning=ExperimentalWarning`. `@swc/jest` was considered as an alternative and rejected as low-maintenance.
 
 ## Module system
 
@@ -83,14 +86,14 @@ The whole project is ESM. Concrete consequences:
 - Relative imports in `src/` use `.js` extensions, even when the source is `.ts` (NodeNext module resolution requirement: `import {run} from './run.js'`).
 - Node built-ins use the `node:` prefix (`import * as fs from 'node:fs'`).
 - Tests use `jest.unstable_mockModule` + dynamic `await import()` — not `jest.spyOn` against module objects. ESM bindings are immutable, so `spyOn` against an imported module fails with "Cannot redefine property". See `src/run.test.ts` for the pattern.
-- `jest` is no longer a global under ESM; it's imported from `@jest/globals`.
+- Test functions (`jest`, `describe`, `test`, `expect`, …) are imported from `@jest/globals`, not ambient globals; there is no `@types/jest`.
 - The test script uses `node --experimental-vm-modules` — still required as of Jest 30 and Node 24.
 - Rollup emits an ESM bundle (`output.format: 'es'`, see `rollup.config.js`). `lib/package.json` (`{"type": "module"}`) is hand-maintained and committed; Rollup does not generate it.
 
 ## Things that bite
 
 - **`tmp/` exclusions**: `tsconfig.json`, `tsconfig.build.json`, `jest.config.cjs`, `.prettierignore`, and `.gitignore` all exclude `tmp/`. If you add a new tool that walks the repo, exclude `tmp/` or `tsc` / `jest` / `prettier` will pick up the reference copy and fail or duplicate work.
-- **`lib/index.js` drift**: a PR that edits `src/` but doesn't rebuild `lib/index.js` produces a no-op at runtime. The `bundle` job in `unit-tests.yml` rebuilds and fails on any `git diff` in `lib/`, but the husky pre-commit hook does **not** check this. Always run `npm run build` before committing src changes.
+- **`lib/index.js` drift**: a PR that edits `src/` but doesn't rebuild `lib/index.js` produces a no-op at runtime. The `bundle` job in `unit-tests.yml` rebuilds and fails on any `git diff` in `lib/`, but the husky pre-commit hook (typecheck, test, format-check) does **not** check this. Always run `npm run build` before committing src changes.
 - **Build pipeline**: `tsc -p tsconfig.build.json` emits plain JS into the gitignored `build/` staging dir, then Rollup bundles `build/index.js`. Rollup never sees TypeScript, on purpose: don't add `@rollup/plugin-typescript` (it needs the TypeScript JS API, which TS 7 removes). The base `tsconfig.json` is `noEmit` so a bare `tsc` can't write over `lib/` or next to `src/*.ts`.
 - **`commonjs({ignoreTryCatch: false})`** in `rollup.config.js` is load-bearing. undici wraps `require('node:crypto')` in `try/catch`; with the plugin default those stay as bare `require()` calls, which are undefined in an ESM bundle, so the error is swallowed and undici silently runs without crypto. CI greps `lib/index.js` for `require(` to catch regressions.
 - **Rollup warnings fail the build**: `onwarn` in `rollup.config.js` allows only `THIS_IS_UNDEFINED` and `CIRCULAR_DEPENDENCY` from `node_modules` (known noise from `@actions/*` and `semver`). If a dependency bump adds a new warning, investigate it before adding it to the allow-list.
