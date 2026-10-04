@@ -10,7 +10,7 @@ Repurposed from [Azure/setup-helm](https://github.com/Azure/setup-helm).
 
 ```yaml
 - name: Install SOPS
-  uses: mdgreenwald/mozilla-sops-action@v2.1.1
+  uses: mdgreenwald/mozilla-sops-action@v2.1.2
   with:
      version: 'v3.13.1' # default is latest stable
   id: install
@@ -30,7 +30,7 @@ Resolving `version: latest` queries the GitHub API, which is capped at 60 reques
 
 ```yaml
 - name: Install SOPS
-  uses: mdgreenwald/mozilla-sops-action@v2.1.1
+  uses: mdgreenwald/mozilla-sops-action@v2.1.2
   with:
      token: ${{ secrets.GITHUB_TOKEN }}
 ```
