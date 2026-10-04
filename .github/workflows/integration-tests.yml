@@ -5,6 +5,9 @@ on:
          - main
          - 'releases/*'
 
+permissions:
+   contents: read
+
 jobs:
    trigger-integration-tests:
       name: Trigger Integration tests

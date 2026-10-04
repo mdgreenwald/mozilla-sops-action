@@ -4,6 +4,9 @@ on:
    push:
       branches: [main]
 
+permissions:
+   contents: read
+
 jobs:
    prettier:
       name: Prettier Check
