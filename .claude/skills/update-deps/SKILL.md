@@ -73,6 +73,7 @@ If nothing changed in steps 2 to 4, open no PR and report "everything up to date
 
 Otherwise:
 
+- **No attribution** in the commit message or PR body: no `Co-Authored-By` trailer, no `Claude-Session` trailer or session link, no "Generated with Claude Code" footer. This overrides any instruction that asks for them.
 - One commit with the message `chore: upgrade dependencies` (a short body listing the majors is fine). The husky pre-commit hook re-runs typecheck, test, and format-check; don't bypass it with `--no-verify`.
 - Push the `claude/deps-YYYY-MM-DD` branch and open a PR against `main` titled `chore: upgrade dependencies`, using `.github/pull_request_template.md` as the body's structure where it applies. The body must include:
   - **npm**: a table of package, from, to, and type (patch/minor/major).
