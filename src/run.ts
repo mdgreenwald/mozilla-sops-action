@@ -6,7 +6,7 @@ import * as toolCache from '@actions/tool-cache'
 import * as core from '@actions/core'
 
 const sopsToolName = 'sops'
-export const stableSopsVersion = 'v3.13.1'
+export const stableSopsVersion = 'v3.13.3'
 const sopsLatestReleaseURL =
    'https://api.github.com/repos/getsops/sops/releases/latest'
 
