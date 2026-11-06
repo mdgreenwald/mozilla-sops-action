@@ -1,5 +1,22 @@
 # Changelog
 
+## v2.1.3
+
+Security and maintenance release. No changes to `action.yml` inputs or outputs.
+
+### Security
+
+- Bundled runtime dependency `undici` bumped from 6.29.0 to 6.29.1, fixing two denial-of-service issues: unbounded memory in the EventSource parser ([GHSA-4qv8-2p9j-2685](https://github.com/advisories/GHSA-4qv8-2p9j-2685)) and an unhandled error on excessive content-encodings ([GHSA-xjj6-f33q-929c](https://github.com/advisories/GHSA-xjj6-f33q-929c)). `npm audit --omit=dev` reports 0 vulnerabilities. ([#281](https://github.com/mdgreenwald/mozilla-sops-action/pull/281))
+
+### Changed
+
+- Bumped the `stableSopsVersion` offline fallback (used when the GitHub API is unreachable) from `v3.13.1` to `v3.13.3`. ([#281](https://github.com/mdgreenwald/mozilla-sops-action/pull/281))
+
+### Internal
+
+- Dependency bumps: `semver` to 7.8.6 (bundled), `rollup` to 4.67.5, `prettier` to 3.9.10, `@types/node` to 26.6.6; GitHub Actions `actions/setup-node` to v7.1.0, `actions/upload-artifact` to v7.0.2, `github/codeql-action` to v4.39.3, `ossf/scorecard-action` to v2.5.0. ([#281](https://github.com/mdgreenwald/mozilla-sops-action/pull/281))
+- Dependabot version updates are disabled; a weekly Claude Code routine runs the new `update-deps` skill (`.claude/skills/update-deps/SKILL.md`) and opens one upgrade PR for review. Dependabot security alerts are unaffected. ([#281](https://github.com/mdgreenwald/mozilla-sops-action/pull/281))
+
 ## v2.1.2
 
 Build/tooling release. No changes to `action.yml` inputs, outputs, or runtime behavior.
