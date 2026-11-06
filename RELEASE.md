@@ -101,7 +101,8 @@ Confirm `verified: true`.
 npm outdated
 ```
 
-Dependabot handles most upgrades weekly; this is just a manual spot-check.
+The weekly `update-deps` routine (see `.claude/skills/update-deps/SKILL.md`)
+handles most upgrades; this is just a manual spot-check.
 
 ## If you tag the wrong commit
 
