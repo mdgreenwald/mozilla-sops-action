@@ -12,15 +12,15 @@ Repurposed from [Azure/setup-helm](https://github.com/Azure/setup-helm).
 - name: Install SOPS
   uses: mdgreenwald/mozilla-sops-action@v2.1.3
   with:
-     version: 'v3.13.1' # default is latest stable
+     version: 'v3.13.3' # default is latest stable
   id: install
 ```
 
 Acceptable values for `version`:
 
 - `latest` (default) — queries the GitHub releases API for the current latest release
-- a full semver tag like `v3.13.1`
-- a bare semver like `3.13.1` — automatically normalized to `v3.13.1`
+- a full semver tag like `v3.13.3`
+- a bare semver like `3.13.3` — automatically normalized to `v3.13.3`
 
 The cached `sops` binary is prepended to `PATH` and its absolute path is exported as the `sops-path` output.
 
