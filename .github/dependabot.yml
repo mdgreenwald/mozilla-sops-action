@@ -1,9 +1,13 @@
+# Version updates are disabled (open-pull-requests-limit: 0). Routine upgrades
+# are handled by the weekly update-deps routine; see
+# .claude/skills/update-deps/SKILL.md. Delete the limit lines to re-enable.
 version: 2
 updates:
    - package-ecosystem: npm
      directory: /
      schedule:
         interval: weekly
+     open-pull-requests-limit: 0
      groups:
         npm:
            patterns:
@@ -12,6 +16,7 @@ updates:
      directory: .github/workflows
      schedule:
         interval: weekly
+     open-pull-requests-limit: 0
      groups:
         actions:
            patterns:

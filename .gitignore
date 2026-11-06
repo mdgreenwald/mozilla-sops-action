@@ -100,8 +100,9 @@ __tests__/runner/*
 # Local reference material (setup-helm copy used as the rewrite basis)
 /tmp
 
-# Claude Code local settings
-/.claude
+# Claude Code local settings (shared skills under .claude/skills are committed)
+/.claude/*
+!/.claude/skills/
 
 
 # TypeScript output staged for rollup
